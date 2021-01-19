@@ -11,6 +11,7 @@ var showContent = false;
 
 var indexInput = null;
 var listIndexes = null;
+var lastItemInIndexes = null;
 
 function googleSearch(event) {
   const API_KEY = 'AIzaSyCQmwK7JeBoXmmPiwROOf0G0ATkwEuRy30';
@@ -100,7 +101,7 @@ function loadDoc(pageIndex, increase) {
 
   fetchData(`${domainOrigin}${pageIndex}.html`, function() {
       if (this.readyState == 4 && this.status == 200) {
-    console.log('document loaded:', pageIndex);
+console.log('document loaded:', pageIndex);
 
         let responseText = this.responseText;
         responseText = cleanFromLineBreaks(responseText);
@@ -129,17 +130,19 @@ function loadDoc(pageIndex, increase) {
 }
 
 function scrollToListItem() {
-  const WAIT_FOR_DOM_TO_LOAD = 1000;
-  var id = '';
+  const WAIT_FOR_DOM_TO_LOAD = 10;
 
-  for (let indexEl of listIndexes) {
-    if (getIndex(indexEl.textContent) == currentPageIndex) {
-      setTimeout(() => {
-        indexEl.scrollIntoView();
-      }, WAIT_FOR_DOM_TO_LOAD);
-      break;
+  let id = setInterval(() => {
+    if (lastItemInIndexes.clientHeight) {
+      clearInterval(id);
+      for (let indexEl of listIndexes) {
+        if (getIndex(indexEl.textContent) == currentPageIndex) {
+          indexEl.scrollIntoView();
+          break;
+        }
+      }
     }
-  }
+  }, WAIT_FOR_DOM_TO_LOAD)
 }
 
 function getIndex(textContent) {
@@ -212,24 +215,24 @@ function setLastVisitedDocOnInput() {
   if (!isNaN(lastVisitedPage)) {
     currentPageIndex = lastVisitedPage;
     indexInput.value = lastVisitedPage;
-    // loadDoc(lastVisitedPage);
-    // updateLocation(lastVisitedPage, null, lastVisitedPage);
   }
 }
 
 function setClickListeners() {
+  setReferences();
+
+  setListClickListeners();
+  setFooterClickListners();
+
+  window.addEventListener('popstate', catchBrowserNavigation);
+}
+
+function setReferences() {
   indexInput = document.getElementById('index');
 
   listIndexes = document.getElementById('list').querySelectorAll('a > i:first-child');
-  indexInput.max = getIndex(listIndexes[listIndexes.length - 1].textContent);
-
-  console.log(indexInput.max)
-
-
-  setListClickListeners();
-  setMenuClickListeners();
-
-  window.addEventListener('popstate', catchBrowserNavigation);
+  lastItemInIndexes = listIndexes[listIndexes.length - 1];
+  indexInput.max = getIndex(lastItemInIndexes.textContent);
 }
 
 function catchBrowserNavigation(event) {
@@ -242,25 +245,19 @@ function catchBrowserNavigation(event) {
       jumpToLinkPage = pageIndex && linkedIndex == currentPageIndex;
 
   if (goToList) {
-// console.log('goToList')
     setBodyClass('list')
   } else if (historyStoredListPage) {
-// console.log('historyStoredListPage')
     setBodyClass('list');
   } else if (newDoc) {
-// console.log('newDoc')
     loadDoc(pageIndex || linkedIndex);
   } else if (location.hash) {
     if (navigateOnHashToSamePage) {
-// console.log('navigateOnHashToSamePage')
       scrollToAnchor();
-    } else {
-// console.log('new hash and new doc')
+    } else {  // new hash and new doc
       loadDoc(linkedIndex);
     }
   } else {
     setBodyClass('page');
-// console.log('else, scrollTo')
     scrollTo(0, 0);
   }
 }
@@ -286,7 +283,7 @@ function getIndexFrom(textContent) {
   return textContent.match(/^\d+/)[0];
 }
 
-function setMenuClickListeners() {
+function setFooterClickListners() {
   const menuListItems = document.querySelectorAll('footer > div');
   const searchBarInput = document.getElementById('search');
 
