@@ -21,21 +21,20 @@ section {
   margin-top: 1rem;
 }
 
-
 /* LIST ITEMS */
-#list > a {
+.link-container a {
   display: flex;
   padding: 0.125rem;
   color: #000;
   transition: background-color 200ms;
 }
 
-#list > a:hover {
+.link-container a:hover {
   background-color: #abdafb;
   transition: background-color 0ms;
 }
 
-#list > a > i {
+.link-container a > i {
   font-style: normal;
 }
 
@@ -43,9 +42,45 @@ section {
   padding-right: 0.5rem;
 }
 
-#list > a > i:nth-child(2) { /* title */
+.link-container a > i:nth-child(2) { /* title */
   flex: 1 1 auto;
   font-size: 14px;
+}
+
+#searchResults {
+  position: fixed;
+  overflow-y: auto;
+  max-height: 80vh;
+  top: 45%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 800px;
+  padding: 0;
+
+  background-color: rgba(255, 255, 255, 0.97);
+  border-right: 1px solid #333;
+  border-left: 1px solid #333;
+}
+
+#searchResults > h1 {
+  padding-left: 1rem;
+}
+
+#searchResults a {
+  padding: 0.5rem 1rem 0px 1rem;
+  font-weight: bold;
+}
+
+#searchResults > div > div {
+  padding: 0px 2rem;
+  white-space: nowrap;
+  overflow-x: hidden;
+  text-overflow: ellipsis;
+  font-size: 12px;
+  color: #212121;
 }
 
 #page {
@@ -101,10 +136,10 @@ footer > .page {
   text-decoration: underline;
 }
 
-footer > #search,
+/* footer > #search,
 footer > #search-icon {
   display: none;
-}
+} */
 
 footer > #search {
   width: 200px;

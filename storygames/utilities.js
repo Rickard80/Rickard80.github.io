@@ -12,6 +12,9 @@ var showContent = false;
 var indexInput = null;
 var listIndexes = null;
 var lastItemInIndexes = null;
+var searchResultElem = null
+
+var googleResults = null
 
 function googleSearch(event) {
   const API_KEY = 'AIzaSyCQmwK7JeBoXmmPiwROOf0G0ATkwEuRy30';
@@ -27,11 +30,31 @@ function googleSearch(event) {
       if (this.readyState == 4 && this.status == 200 && this.responseText) {
         let response = JSON.parse(this.responseText)
         console.log('Google Search', response);
+        handleSearchResults(response);
       }
     });
   } else {
     searchInput.value = "";
     searchInput.placeholder = "Too short. Min 4 characters."
+  }
+}
+
+function handleSearchResults(response) {
+  if (response.searchInformation.totalResults) {
+    searchResultElem = searchResultElem || document.getElementById('searchResults');
+    googleResults = response.items;
+    let containerElem = document.createElement('div');
+    let extractIndex = /(?<=\/)\d+(?=.html)/;
+    var index = 0;
+
+    for (let result of googleResults) {
+      index = result.link.match(extractIndex)[0];
+      containerElem.innerHTML += `<a href="?${index}"><i></i><i>${result.title}</i><br/></a>`;
+      containerElem.innerHTML += `<div>${result.snippet}</div>`
+    }
+
+    searchResultElem.innerHTML = '<h1>Search Results</h1>';
+    searchResultElem.appendChild(containerElem);
   }
 }
 
