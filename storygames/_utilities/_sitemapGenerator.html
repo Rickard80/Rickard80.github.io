@@ -43,25 +43,33 @@
       tempStr += `<?xml version="1.0" encoding="UTF-8"?>\n`;
       tempStr += `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n`
 
-      // for txt-file
-      // tempStr = `${domainOrigin}index.html\n`
-      
-      tempStr += `  <url>\n`;
-      tempStr += `    <loc>${domainOrigin}index.html</loc>\n`;
-      tempStr += `    <lastmod>${lastMod}</lastmod>\n`;
-      tempStr += `  </url>\n`;
+      // for txt file
+      tempStr = `${domainOrigin}index.html\n`
+
+      // for html file
+      tempStr = `<a href="${domainOrigin}index.html">Story Games Index</a>\n`
+
+      // tempStr += `  <url>\n`;
+      // tempStr += `    <loc>${domainOrigin}index.html</loc>\n`;
+      // tempStr += `    <lastmod>${lastMod}</lastmod>\n`;
+      // tempStr += `  </url>\n`;
 
       for (rowStr of listArr) {
         if (rowStr) {
           row = new Row(rowStr);
 
-          // for txt-file
+          // for txt file
           // tempStr += `${domainOrigin}archive/${row.id}.html\n`
 
-          tempStr += `  <url>\n`;
-          tempStr += `    <loc>${domainOrigin}archive/${row.id}.html</loc>\n`;
-          tempStr += `    <lastmod>${lastMod}</lastmod>\n`;
-          tempStr += `  </url>\n`;
+          // for html file
+          // tempStr += `${domainOrigin}archive/${row.id}.html\n`
+
+          tempStr += `<a href="${domainOrigin}archive/${row.id}.html">${row.title}</a>\n`
+
+          // tempStr += `  <url>\n`;
+          // tempStr += `    <loc>${domainOrigin}archive/${row.id}.html</loc>\n`;
+          // tempStr += `    <lastmod>${lastMod}</lastmod>\n`;
+          // tempStr += `  </url>\n`;
         }
       }
 
