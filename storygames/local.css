@@ -4,11 +4,11 @@ body {
   flex-direction: column;
 }
 
-content > .loading {
+section > .loading {
   text-align: center;
 }
 
-content {
+section {
   flex: 1 1 auto; /* auto fill height to push sticky to bottom */
   display: block;
   max-width: 800px;

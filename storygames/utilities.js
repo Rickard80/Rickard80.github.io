@@ -62,6 +62,22 @@ function setBodyClass(className) {
   }
 }
 
+function scrollToListItem() {
+  const WAIT_FOR_DOM_TO_LOAD = 10;
+
+  let id = setInterval(() => {
+    if (lastItemInIndexes.clientHeight) {
+      clearInterval(id);
+      for (let indexEl of listIndexes) {
+        if (getIndex(indexEl.textContent) == currentPageIndex) {
+          indexEl.scrollIntoView();
+          break;
+        }
+      }
+    }
+  }, WAIT_FOR_DOM_TO_LOAD);
+}
+
 function updateLocation(state, title, index) {
   scrollTo(0, 0);
   updateURL(state, title, index);
@@ -127,22 +143,6 @@ console.log('document loaded:', pageIndex);
   });
 
   localStorage.setItem(LAST_VISITED, pageIndex);
-}
-
-function scrollToListItem() {
-  const WAIT_FOR_DOM_TO_LOAD = 10;
-
-  let id = setInterval(() => {
-    if (lastItemInIndexes.clientHeight) {
-      clearInterval(id);
-      for (let indexEl of listIndexes) {
-        if (getIndex(indexEl.textContent) == currentPageIndex) {
-          indexEl.scrollIntoView();
-          break;
-        }
-      }
-    }
-  }, WAIT_FOR_DOM_TO_LOAD)
 }
 
 function getIndex(textContent) {
