@@ -5,13 +5,16 @@ const LIST_INDEX = 0;
 const domainOrigin = 'https://rickard80.github.io/storygames/archive/';
 
 let headline = DEFAULT_HEADLINE;
-var lastIndex = 0;
 var currentPageIndex = 0;
 var showContent = false;
 
 var indexInput = null;
 var listIndexes = null;
 var lastItemInIndexes = null;
+var searchResultElem = null;
+var sectionsElem = null;
+
+var googleResults = null;
 
 function googleSearch(event) {
   const API_KEY = 'AIzaSyCQmwK7JeBoXmmPiwROOf0G0ATkwEuRy30';
@@ -20,45 +23,83 @@ function googleSearch(event) {
   let searchInput = event.currentTarget;
   let keywords = searchInput.value.trim();
 
+  searchResultElem = searchResultElem || document.getElementById('searchResults');
+  searchResultElem.innerHTML = `<h1>Loading...</h1>`;
+  displaySection('searchResults');
+
   if (keywords.length > 3) {
     searchInput.placeholder = "Search";
 
     fetchData(`https://www.googleapis.com/customsearch/v1?key=${API_KEY}&cx=${SEARCH_ENGINE_ID}&q=${keywords}`, function() {
       if (this.readyState == 4 && this.status == 200 && this.responseText) {
-        let response = JSON.parse(this.responseText)
+        let response = JSON.parse(this.responseText);
         console.log('Google Search', response);
+        handleSearchResults(response);
       }
     });
   } else {
     searchInput.value = "";
-    searchInput.placeholder = "Too short. Min 4 characters."
+    searchInput.placeholder = "Too short. Min 4 characters.";
   }
 }
 
+function handleSearchResults(response) {
+  if (response.searchInformation.totalResults > 0) {
+    googleResults = removeIndexPage(response.items);
+    let containerElem = document.createElement('div');
+    let extractIndex = /\/(\d+?)\./;
+    var index = 0;
+
+    for (let result of googleResults) {
+      index = result.link.match(extractIndex)[1];
+      containerElem.innerHTML += `<a href="?${index}"><i></i><i>${result.title}</i><br/></a>`;
+      containerElem.innerHTML += `<div>${result.snippet}</div>`;
+    }
+
+    searchResultElem.innerHTML = '<h1>Search Results</h1>';
+    searchResultElem.appendChild(containerElem);
+  } else {
+    searchResultElem.innerHTML = `<p>No results found.</p>`;
+  }
+}
+
+function removeIndexPage(googleResults) {
+  return googleResults.filter(result => { return result.link.indexOf('index.html') == -1});
+}
+
+/* NAVIGATION */
+
 function switchTab(event) {
-  let className = event.target.classList[0];
-  let showList = className == 'list';
-  let state = (showList) ? LIST_INDEX : currentPageIndex;
-  let index = (showList) ? '' : currentPageIndex
-  let firstTimeVisitedLoadingPage = !showList && headline == DEFAULT_HEADLINE && currentPageIndex;
+  let className = event.target.classList[0],
+      showList = className == 'list',
+      state = (showList) ? LIST_INDEX : currentPageIndex,
+      index = (showList) ? '' : currentPageIndex,
+      firstTimeVisitedLoadingPage = !showList && headline == DEFAULT_HEADLINE && currentPageIndex;
 
   if (firstTimeVisitedLoadingPage) {
     loadDoc(currentPageIndex);
   } else {
-    setBodyClass(className);
+    displaySection(className);
   }
 
   updateLocation(state, null, index);
 }
 
-function setBodyClass(className) {
-  showContent = className == 'page';
+function displaySection(sectionId) {
+  hideAllSections();
+  showContent = sectionId == 'page';
 
-  document.querySelector('body').classList.toggle('show-content', showContent);
+  document.getElementById(sectionId).classList.remove('hidden');
   setDocumentTitle(showContent ? headline : DEFAULT_HEADLINE);
 
-  if (className == 'list' && currentPageIndex) {
+  if (sectionId == 'list' && currentPageIndex) {
     scrollToListItem();
+  }
+}
+
+function hideAllSections() {
+  for (let section of sectionsElem) {
+    section.classList.toggle('hidden', true);
   }
 }
 
@@ -97,6 +138,8 @@ function setDocumentTitle(title) {
   document.title = `SGI :: ${title}`;
 }
 
+/* LOAD DOCUMENT */
+
 function fetchData(url, callbackFn) {
   var xhttp = new XMLHttpRequest();
   xhttp.onreadystatechange = function() {
@@ -106,14 +149,16 @@ function fetchData(url, callbackFn) {
   xhttp.send();
 }
 
+let response
+
 function loadDoc(pageIndex, increase) {
   let pageEl = document.getElementById("page");
 
   currentPageIndex = parseInt(pageIndex);
   indexInput.value = pageIndex;
 
-  pageEl.innerHTML = "<h1 class='loading'>Loading...</h1>"
-  setBodyClass('page');
+  pageEl.innerHTML = "<h1 class='loading'>Loading...</h1>";
+  displaySection('page');
 
   fetchData(`${domainOrigin}${pageIndex}.html`, function() {
       if (this.readyState == 4 && this.status == 200) {
@@ -124,8 +169,8 @@ console.log('document loaded:', pageIndex);
         responseText = replaceAnchorLink(responseText);
         responseText = changeInternalLinks(responseText);
 
-        let headlinePattern = /(?<=<h1>).*?(?=<\/h1)/;
-        headline = responseText.match(headlinePattern);
+        let headlinePattern = /<h1>(.*?)<\/h1>/;
+        headline = responseText.match(headlinePattern)[1];
         setDocumentTitle(headline);
 
         pageEl.innerHTML = responseText;
@@ -150,7 +195,7 @@ function getIndex(textContent) {
 }
 
 function scrollToAnchor() {
-  let anchorEl = document.getElementById('page').querySelector(`a[href="${location.hash}"`)
+  let anchorEl = document.getElementById('page').querySelector(`a[href="${location.hash}"`);
   anchorEl.scrollIntoView();
 }
 
@@ -164,19 +209,19 @@ function replaceAnchorLink(text) {
 
 // Examples:
 // (new) "http://story-games.com/forums/discussion/9214/p1" rel="nonsense"
-// (old) "http://www.story-games.com/forums/discussion/9214/p1" rel="nonsense"
+// (old) "http://www.story-games.com/forums/comments.php?DiscussionID=9214#anchor" rel="nonsense" ex. ?2866
 function changeInternalLinks(text) {
   text = text.replaceAll(/\"https?:\/\/(www\.)?story-games\.com\/forums\/discussion\/\d+\S+\"/g, (match) => {
-      let pageIndex = match.match(/(?<=\/)\d+(?=\/)/);      // new internal links
-      return `"?${pageIndex}"`
+      let pageIndex = match.match(/\d+/)[0]; // new internal links
+      return `"?${pageIndex}"`;
   });
 
   text = text.replaceAll(/\"https?:\/\/(www\.)?story-games\.com\/forums\/comments\.php\?DiscussionID=\d+\S+\"/g, (match) => {
-      let pageIndex = match.match(/(?<=DiscussionID=)\d+/); // old internal links
-      return `"?${pageIndex}"`
+      let pageIndex = match.match(/\d+/)[0]; // old internal links
+      return `"?${pageIndex}"`;
   });
 
-  return text
+  return text;
 }
 
 function checkRange(newIndex) {
@@ -185,15 +230,27 @@ function checkRange(newIndex) {
   if (newIndex < indexInput.min) { newIndex = indexInput.min; }
   if (newIndex > indexInput.max) { newIndex = indexInput.max; }
 
-  return newIndex
+  return newIndex;
 }
 
 function getLinkedIndex() {
-  return parseInt(window.location.search.replace('?', ''))  ;
+  return parseInt(window.location.search.replace('?', ''));
 }
 
-function autoLoadDoc() {
+/* INIT */
+
+function init() {
+  setReferences();
+
+  setListClickListeners();
+  setFooterClickListners();
+
+  window.addEventListener('popstate', catchBrowserNavigation);
+}
+
+function firstTimeLoading() {
   if (!loadDirectLink()) {
+    displaySection('list');
     setLastVisitedDocOnInput();
   }
 }
@@ -203,10 +260,10 @@ function loadDirectLink() {
 
   if (!isNaN(linkedIndex)) {
     loadDoc(linkedIndex);
-    return true
+    return true;
   }
 
-  return false
+  return false;
 }
 
 function setLastVisitedDocOnInput() {
@@ -218,17 +275,9 @@ function setLastVisitedDocOnInput() {
   }
 }
 
-function setClickListeners() {
-  setReferences();
-
-  setListClickListeners();
-  setFooterClickListners();
-
-  window.addEventListener('popstate', catchBrowserNavigation);
-}
-
 function setReferences() {
   indexInput = document.getElementById('index');
+  sectionsElem = document.querySelectorAll('section');
 
   listIndexes = document.getElementById('list').querySelectorAll('a > i:first-child');
   lastItemInIndexes = listIndexes[listIndexes.length - 1];
@@ -239,15 +288,14 @@ function catchBrowserNavigation(event) {
   let pageIndex = event.state;
   let linkedIndex = getLinkedIndex();
   let goToList = isNaN(linkedIndex) && !pageIndex,
-      historyStoredListPage = pageIndex == LIST_INDEX;
+      historyStoredListPage = pageIndex == LIST_INDEX,
       newDoc = pageIndex && linkedIndex != currentPageIndex || linkedIndex != currentPageIndex,
-      navigateOnHashToSamePage = linkedIndex == currentPageIndex && showContent,
-      jumpToLinkPage = pageIndex && linkedIndex == currentPageIndex;
+      navigateOnHashToSamePage = linkedIndex == currentPageIndex && showContent;
 
   if (goToList) {
-    setBodyClass('list')
+    displaySection('list');
   } else if (historyStoredListPage) {
-    setBodyClass('list');
+    displaySection('list');
   } else if (newDoc) {
     loadDoc(pageIndex || linkedIndex);
   } else if (location.hash) {
@@ -257,17 +305,17 @@ function catchBrowserNavigation(event) {
       loadDoc(linkedIndex);
     }
   } else {
-    setBodyClass('page');
+    displaySection('page');
     scrollTo(0, 0);
   }
 }
 
 function setListClickListeners() {
   document.addEventListener('click', (event) => {
-    let target = event.target;
-    let aElem = (target.tagName == 'A') ? target : (target.parentNode && target.parentNode.tagName == 'A') ? target.parentNode : null;
-    let href = aElem && aElem.href.match(/\?\d+$/);
-    let isInternalLink = (href) ? href[0] : false;
+    let target = event.target,
+        aElem = (target.tagName == 'A') ? target : (target.parentNode && target.parentNode.tagName == 'A') ? target.parentNode : null,
+        href = aElem && aElem.href.match(/\?\d+$/),
+        isInternalLink = (href) ? href[0] : false;
 
     if (isInternalLink) {
       let pageIndex = isInternalLink.substr(1);
@@ -279,16 +327,11 @@ function setListClickListeners() {
   });
 }
 
-function getIndexFrom(textContent) {
-  return textContent.match(/^\d+/)[0];
-}
-
 function setFooterClickListners() {
   const menuListItems = document.querySelectorAll('footer > div');
   const searchBarInput = document.getElementById('search');
 
   menuListItems.forEach((menuItem) => {
-    let className = menuItem.classList[0];
     menuItem.addEventListener('click', switchTab);
   });
 
