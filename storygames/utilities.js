@@ -1,5 +1,6 @@
 const LAST_VISITED = "last-visited";
 const DEFAULT_HEADLINE = "Story Games Index";
+const SEARCH_HEADLINE = "";
 const LIST_INDEX = 0;
 
 const domainOrigin = 'https://rickard80.github.io/storygames/archive/';
@@ -16,55 +17,81 @@ var sectionsElem = null;
 
 var googleResults = null;
 
-function googleSearch(event) {
-  const API_KEY = 'AIzaSyCQmwK7JeBoXmmPiwROOf0G0ATkwEuRy30';
-  const SEARCH_ENGINE_ID = '72ea68d1161039cae';
-
+function google(event) {
   let searchInput = event.currentTarget;
   let keywords = searchInput.value.trim();
 
   searchResultElem = searchResultElem || document.getElementById('searchResults');
   searchResultElem.innerHTML = `<h1>Loading...</h1>`;
+  headline = SEARCH_HEADLINE;
   displaySection('searchResults');
+  updateURL('searchResults', SEARCH_HEADLINE, 'search');
 
   if (keywords.length > 3) {
-    searchInput.placeholder = "Search";
+    let excludeIndexPage = ' -site:https://rickard80.github.io/storygames/index.html',
+        excludeSitemap =   ' -site:https://rickard80.github.io/storygames/sitemap.html';
 
-    fetchData(`https://www.googleapis.com/customsearch/v1?key=${API_KEY}&cx=${SEARCH_ENGINE_ID}&q=${keywords}`, function() {
-      if (this.readyState == 4 && this.status == 200 && this.responseText) {
-        let response = JSON.parse(this.responseText);
-        console.log('Google Search', response);
-        handleSearchResults(response);
-      }
-    });
+    keywords += excludeIndexPage;
+    keywords += excludeSitemap;
+
+    searchInput.placeholder = SEARCH_HEADLINE;
+
+    googleResults = [];
+    searchOnGoogle(keywords, 1);
   } else {
     searchInput.value = "";
     searchInput.placeholder = "Too short. Min 4 characters.";
   }
 }
 
-function handleSearchResults(response) {
-  if (response.searchInformation.totalResults > 0) {
-    googleResults = removeIndexPage(response.items);
+function searchOnGoogle(keywords, index) {
+  const API_KEY = 'AIzaSyCQmwK7JeBoXmmPiwROOf0G0ATkwEuRy30';
+  const SEARCH_ENGINE_ID = '72ea68d1161039cae';
+
+  searchResultElem.innerHTML = '<h1>Search Results</h1>';
+  searchResultElem.innerHTML += `<i id="searchInformation"></i>`;
+
+  fetchData(`https://www.googleapis.com/customsearch/v1?key=${API_KEY}&cx=${SEARCH_ENGINE_ID}&q=${keywords}&start=${index}`, function() {
+    if (this.readyState == 4 && this.status == 200 && this.responseText) {
+      let response = JSON.parse(this.responseText);
+      console.log('Google Search', response);
+      handleSearchResults(response, index == 1);
+    }
+  });
+}
+
+function handleSearchResults(response, onFirstPage) {
+  let totalResults = response.searchInformation.totalResults;
+  let nextPage = response.queries.nextPage;
+
+  if (nextPage && onFirstPage) {
+    searchOnGoogle(nextPage[0].searchTerms, nextPage[0].startIndex);
+  }
+
+  if (totalResults > 0) {
+    googleResults = [...googleResults, ...removeNonArticlePages(response.items)];
     let containerElem = document.createElement('div');
     let extractIndex = /\/(\d+?)\./;
     var index = 0;
 
     for (let result of googleResults) {
       index = result.link.match(extractIndex)[1];
-      containerElem.innerHTML += `<a href="?${index}"><i></i><i>${result.title}</i><br/></a>`;
-      containerElem.innerHTML += `<div>${result.snippet}</div>`;
+      containerElem.innerHTML += `<a href="?${index}" data-tooltip="${result.snippet}"><i></i><i>${result.title}</i><br/></a>`;
     }
 
-    searchResultElem.innerHTML = '<h1>Search Results</h1>';
+    document.getElementById('searchInformation').innerHTML = `Displaying top ${googleResults.length} out of ${response.searchInformation.totalResults} results.`;
+
     searchResultElem.appendChild(containerElem);
   } else {
-    searchResultElem.innerHTML = `<p>No results found.</p>`;
+    searchResultElem.innerHTML += `<p>No results found.</p>`;
   }
 }
 
-function removeIndexPage(googleResults) {
-  return googleResults.filter(result => { return result.link.indexOf('index.html') == -1});
+function removeNonArticlePages(googleResults) {
+  return googleResults.filter(result => {
+    return result.link.indexOf('index.html') == -1 &&
+           result.link.indexOf('sitemap') == -1;
+  });
 }
 
 /* NAVIGATION */
@@ -74,7 +101,7 @@ function switchTab(event) {
       showList = className == 'list',
       state = (showList) ? LIST_INDEX : currentPageIndex,
       index = (showList) ? '' : currentPageIndex,
-      firstTimeVisitedLoadingPage = !showList && headline == DEFAULT_HEADLINE && currentPageIndex;
+      firstTimeVisitedLoadingPage = !showList && (headline == DEFAULT_HEADLINE || headline == SEARCH_HEADLINE) && currentPageIndex;
 
   if (firstTimeVisitedLoadingPage) {
     loadDoc(currentPageIndex);
@@ -88,9 +115,10 @@ function switchTab(event) {
 function displaySection(sectionId) {
   hideAllSections();
   showContent = sectionId == 'page';
+  showSearch = sectionId == 'searchResults';
 
   document.getElementById(sectionId).classList.remove('hidden');
-  setDocumentTitle(showContent ? headline : DEFAULT_HEADLINE);
+  setDocumentTitle((showContent || showSearch) ? headline : DEFAULT_HEADLINE);
 
   if (sectionId == 'list' && currentPageIndex) {
     scrollToListItem();
@@ -287,12 +315,15 @@ function setReferences() {
 function catchBrowserNavigation(event) {
   let pageIndex = event.state;
   let linkedIndex = getLinkedIndex();
-  let goToList = isNaN(linkedIndex) && !pageIndex,
+  let ifSearch = document.location.search.indexOf('search') >= 0,
+      goToList = isNaN(linkedIndex) && !pageIndex,
       historyStoredListPage = pageIndex == LIST_INDEX,
       newDoc = pageIndex && linkedIndex != currentPageIndex || linkedIndex != currentPageIndex,
       navigateOnHashToSamePage = linkedIndex == currentPageIndex && showContent;
 
-  if (goToList) {
+  if (ifSearch) {
+    displaySection('searchResults');
+  } else if (goToList) {
     displaySection('list');
   } else if (historyStoredListPage) {
     displaySection('list');
@@ -341,5 +372,5 @@ function setFooterClickListners() {
     updateLocation(newIndex, null, newIndex);
   });
 
-  searchBarInput.addEventListener('change', googleSearch);
+  searchBarInput.addEventListener('change', google);
 }
