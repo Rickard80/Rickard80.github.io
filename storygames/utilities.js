@@ -1,6 +1,6 @@
 const LAST_VISITED = "last-visited";
 const DEFAULT_HEADLINE = "Story Games Index";
-const SEARCH_HEADLINE = "";
+const SEARCH_HEADLINE = "Search";
 const LIST_INDEX = 0;
 
 const domainOrigin = 'https://rickard80.github.io/storygames/archive/';
