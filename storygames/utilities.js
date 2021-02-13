@@ -3,7 +3,8 @@ const DEFAULT_HEADLINE = "Story Games Index";
 const SEARCH_HEADLINE = "Search";
 const LIST_INDEX = 0;
 
-const domainOrigin = 'https://rickard80.github.io/storygames/archive/';
+const domainOrigin = 'https://rickard80.github.io/storygames/'
+const archiveOrigin = domainOrigin + 'archive/';
 
 let headline = DEFAULT_HEADLINE;
 var currentPageIndex = 0;
@@ -22,14 +23,15 @@ function google(event) {
   let keywords = searchInput.value.trim();
 
   searchResultElem = searchResultElem || document.getElementById('searchResults');
-  searchResultElem.innerHTML = `<h1>Loading...</h1>`;
-  headline = SEARCH_HEADLINE;
-  displaySection('searchResults');
-  updateURL('searchResults', SEARCH_HEADLINE, 'search');
 
   if (keywords.length > 3) {
-    let excludeIndexPage = ' -site:https://rickard80.github.io/storygames/index.html',
-        excludeSitemap =   ' -site:https://rickard80.github.io/storygames/sitemap.html';
+    searchResultElem.innerHTML = `<h1>Loading...</h1>`;
+    headline = SEARCH_HEADLINE;
+    displaySection('searchResults');
+    updateURL('searchResults', SEARCH_HEADLINE, 'search');
+
+    let excludeIndexPage = ` -site:${domainOrigin}index.html`,
+        excludeSitemap =   ` -site:${domainOrigin}sitemap.html`;
 
     keywords += excludeIndexPage;
     keywords += excludeSitemap;
@@ -69,12 +71,13 @@ function handleSearchResults(response, onFirstPage) {
   }
 
   if (totalResults > 0) {
-    googleResults = [...googleResults, ...removeNonArticlePages(response.items)];
+    let cleanedArticles = removeNonArticlePages(response.items);
+    googleResults = [...googleResults, ...cleanedArticles];
     let containerElem = document.createElement('div');
     let extractIndex = /\/(\d+?)\./;
     var index = 0;
 
-    for (let result of googleResults) {
+    for (let result of cleanedArticles) {
       index = result.link.match(extractIndex)[1];
       containerElem.innerHTML += `<a href="?${index}" data-tooltip="${result.snippet}"><i></i><i>${result.title}</i><br/></a>`;
     }
@@ -188,7 +191,7 @@ function loadDoc(pageIndex, increase) {
   pageEl.innerHTML = "<h1 class='loading'>Loading...</h1>";
   displaySection('page');
 
-  fetchData(`${domainOrigin}${pageIndex}.html`, function() {
+  fetchData(`${archiveOrigin}${pageIndex}.html`, function() {
       if (this.readyState == 4 && this.status == 200) {
 console.log('document loaded:', pageIndex);
 
