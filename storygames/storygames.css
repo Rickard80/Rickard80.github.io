@@ -40,10 +40,11 @@ body {
 }
 
 .ItemComment {
-    list-style-type: none;
-    margin-top: 2rem;
-    padding-top: 1rem;
-    border-top: 1px solid #eee;
+  list-style-type: none;
+  /* margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 1px solid #eee; */
+  padding: 0px !important;
 }
 
 
@@ -53,7 +54,10 @@ body {
 .PanelColumn,
 .PagerWrap,
 .DateUpdated,
-.Foot.Closed /* bottom footer */
+.Foot.Closed, /* bottom footer */
+.MessageList.Discussion, /*headline*/
+.BeforeCommentHeading, /* pagination */
+.CommentHeading
 {
   display: none !important;
 }
