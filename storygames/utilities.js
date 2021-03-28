@@ -74,11 +74,13 @@ function handleSearchResults(response, onFirstPage) {
     let cleanedArticles = removeNonArticlePages(response.items);
     googleResults = [...googleResults, ...cleanedArticles];
     let containerElem = document.createElement('div');
-    let extractIndex = /\/(\d+?)\./;
+    let extractIndexEndsWithHTML = /\/(\d+?)\./
+    let extractIndexParameter = /\d+$/;
     var index = 0;
 
     for (let result of cleanedArticles) {
-      index = result.link.match(extractIndex)[1];
+      index = result.link.match(extractIndexEndsWithHTML) || result.link.match(extractIndexParameter);
+      index = index[index.length - 1];
       containerElem.innerHTML += `<a href="?${index}" data-tooltip="${result.snippet}"><i></i><i>${result.title}</i><br/></a>`;
     }
 
@@ -92,7 +94,8 @@ function handleSearchResults(response, onFirstPage) {
 
 function removeNonArticlePages(googleResults) {
   return googleResults.filter(result => {
-    return result.link.indexOf('index.html') == -1 &&
+    return result.link != 'https://rickard80.github.io/storygames/' &&
+           result.link.indexOf('index.html') == -1 &&
            result.link.indexOf('sitemap') == -1;
   });
 }
