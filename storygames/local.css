@@ -8,10 +8,11 @@ body {
 section {
   flex: 1 1 auto; /* auto fill height to push sticky to bottom */
   display: block;
-  max-width: 800px;
+  max-width: min(100%, 800px);
   margin: 0px auto;
-  padding-top: 1rem;
+  padding: 1rem;
   padding-bottom: 3rem;
+  box-sizing: border-box;
 }
 
 .hidden {
