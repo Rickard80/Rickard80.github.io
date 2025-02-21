@@ -34,5 +34,5 @@ jobs:
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     - name: Start Store Crawler
       run: |
-        prismat/storecrawler
+        python3 prismat/storecrawler.py
         echo "Store Crawler started"
