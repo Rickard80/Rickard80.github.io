@@ -32,7 +32,10 @@ def storeWillysDiscountAPIUrl():
 
     for store in storeDict['store_items']:
       if store['name'] == "Willys":
-        store['url'] = apiUrl
+        if store['parameter'] != parameter:
+          store['url'] = apiUrl
+        else:
+          return
 
     jsonDict = json.dumps(storeDict, indent=4)
 
