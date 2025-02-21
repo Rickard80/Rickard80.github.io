@@ -1,9 +1,9 @@
 {
-  "id": "stores",
-  "store_items": [
-    {
-    "name": "Willys",
-    "url": "https://www.willys.se/productBannerComponent/comp_0000M17T?size=999"
-    }
-  ]
+    "id": "stores",
+    "store_items": [
+        {
+            "name": "Willys",
+            "url": "https://www.willys.se/productBannerComponent/comp_0000M17T?size=999"
+        }
+    ]
 }
