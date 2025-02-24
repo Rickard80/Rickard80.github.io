@@ -14,10 +14,12 @@ isMonday = lambda : int(time.strftime("%u")) == 1
 alreadyUpdated = lambda lastUpdated : getTodayAsInt() == lastUpdated
 
 # Run a method only once during a Monday
-def onlyOnMondays(storeName, callback):
+def onlyOnMondays(callback):
 
   if isMonday():
     callback()
+  else:
+    print("Not Monday. Quitting...")
 
   #runSchedulerService()
 
@@ -31,7 +33,7 @@ def storeWillysDiscountAPIUrl():
     for store in storeDict['store_items']:
       if store['name'] == "Willys":
         if alreadyUpdated(store['last_updated']):
-          print("API already updated today")
+          print(f"API already updated today: {store['last_updated']}")
           return
 
         # API call
@@ -39,7 +41,7 @@ def storeWillysDiscountAPIUrl():
         apiUrl = f'https://www.willys.se/productBannerComponent/{parameter}?size=999'
 
         if store['parameter'] == parameter:
-          print("Same as stored url")
+          print(f"Same as stored url: {parameter}")
           return
         else:
           store['url'] = apiUrl
@@ -94,4 +96,4 @@ def getWillysDiscountParameter():
   
 #runSchedulerService()
 
-onlyOnMondays("Willys", storeWillysDiscountAPIUrl)
+onlyOnMondays(storeWillysDiscountAPIUrl)
