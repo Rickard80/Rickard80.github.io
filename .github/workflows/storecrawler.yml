@@ -6,7 +6,7 @@ name: Python Store Crawler
 on:
   workflow_dispatch:
   schedule: 
-    - cron: '0 */3 * * *'
+    - cron: '*/1 * * * *'
 
 jobs:
   build:
@@ -27,5 +27,6 @@ jobs:
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
     - name: Start Store Crawler
       run: |
+        echo 'Store Crawler :: started'
         python3 prismat/storecrawler.py
-        echo 'Store Crawler started'
+        echo 'Store Crawler :: done'

@@ -1,14 +1,13 @@
 from urllib.request import urlopen
 import re, json
-import sched, time
-import os
+import time#, sched
 
 # Sets a year+dayOfYear integer at every successful update
 updatedStores = {
   "Willys": 0
 }
 
-s = sched.scheduler(time.time, time.sleep)
+#s = sched.scheduler(time.time, time.sleep)
 
 getTodayAsInt = lambda : int(time.strftime("%Y%j", time.gmtime()))
 isMonday = lambda : int(time.strftime("%u")) == 1
