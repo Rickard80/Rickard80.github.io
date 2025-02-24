@@ -27,7 +27,6 @@ def storeWillysDiscountAPIUrl():
 
   apiUrl = f'https://www.willys.se/productBannerComponent/{parameter}?size=999'
   filename = 'prismat/stores.json'
-  print(f"Folder {os.path.realpath(__file__)}")
 
   with open(filename, 'r+') as storesFile:
     storeDict = json.load(storesFile)

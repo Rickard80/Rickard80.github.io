@@ -5,7 +5,8 @@ name: Python Store Crawler
 
 on:
   workflow_dispatch:
-  deployment: 
+  schedule: 
+    - cron: '0 */3 * * *'
 
 jobs:
   build:
