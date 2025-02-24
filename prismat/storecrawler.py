@@ -34,16 +34,17 @@ def storeWillysDiscountAPIUrl():
           print("API already updated today")
           return
 
+        # API call
         parameter = getWillysDiscountParameter()
         apiUrl = f'https://www.willys.se/productBannerComponent/{parameter}?size=999'
 
-        if store['parameter'] != parameter:
+        if store['parameter'] == parameter:
+          print("Same as stored url")
+          return
+        else:
           store['url'] = apiUrl
           store['parameter'] = parameter
           store['last_updated'] = getTodayAsInt()
-        else:
-          print("Same as stored url")
-          return
 
     jsonDict = json.dumps(storeDict, indent=4)
 
