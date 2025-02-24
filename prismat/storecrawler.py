@@ -18,7 +18,7 @@ def onlyOnMondays(storeName, callback):
   if isMonday() & needsUpdate(storeName):
     callback()
 
-  runSchedulerService()
+  #runSchedulerService()
 
 # Opens, writes and closes a json file
 def storeWillysDiscountAPIUrl():
@@ -34,7 +34,9 @@ def storeWillysDiscountAPIUrl():
       if store['name'] == "Willys":
         if store['parameter'] != parameter:
           store['url'] = apiUrl
+          store['parameter'] = parameter
         else:
+          print("Same as stored url")
           return
 
     jsonDict = json.dumps(storeDict, indent=4)
@@ -78,9 +80,11 @@ def getWillysDiscountParameter():
     else:
       print("getWillysDiscountParameter: Couldn't match DISCOUNT")
 
-def runSchedulerService():
-  every_hour = 3600
-  s.enter(every_hour, 2, onlyOnMondays, argument=("Willys", storeWillysDiscountAPIUrl))
-  s.run()
+#def runSchedulerService():
+#  every_hour = 3600
+#  s.enter(every_hour, 2, onlyOnMondays, argument=("Willys", storeWillysDiscountAPIUrl))
+#  s.run()
   
-runSchedulerService()
+#runSchedulerService()
+
+onlyOnMondays("Willys", storeWillysDiscountAPIUrl)
