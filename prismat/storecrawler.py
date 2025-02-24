@@ -1,6 +1,7 @@
 from urllib.request import urlopen
 import re, json
 import sched, time
+import os
 
 # Sets a year+dayOfYear integer at every successful update
 updatedStores = {
@@ -25,7 +26,8 @@ def storeWillysDiscountAPIUrl():
   parameter = getWillysDiscountParameter()
 
   apiUrl = f'https://www.willys.se/productBannerComponent/{parameter}?size=999'
-  filename = 'stores.json'
+  filename = 'prismat/stores.json'
+  print(f"Folder {os.path.realpath(__file__)}")
 
   with open(filename, 'r+') as storesFile:
     storeDict = json.load(storesFile)
