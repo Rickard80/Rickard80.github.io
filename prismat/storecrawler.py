@@ -11,20 +11,18 @@ updatedStores = {
 
 getTodayAsInt = lambda : int(time.strftime("%Y%j", time.gmtime()))
 isMonday = lambda : int(time.strftime("%u")) == 1
-needsUpdate = lambda storeName : getTodayAsInt() != updatedStores[storeName]
+alreadyUpdated = lambda lastUpdated : getTodayAsInt() == lastUpdated
 
 # Run a method only once during a Monday
 def onlyOnMondays(storeName, callback):
-  if isMonday() & needsUpdate(storeName):
+
+  if isMonday():
     callback()
 
   #runSchedulerService()
 
 # Opens, writes and closes a json file
 def storeWillysDiscountAPIUrl():
-  parameter = getWillysDiscountParameter()
-
-  apiUrl = f'https://www.willys.se/productBannerComponent/{parameter}?size=999'
   filename = 'prismat/stores.json'
 
   with open(filename, 'r+') as storesFile:
@@ -32,9 +30,17 @@ def storeWillysDiscountAPIUrl():
 
     for store in storeDict['store_items']:
       if store['name'] == "Willys":
+        if alreadyUpdated(store['last_updated']):
+          print("API already updated today")
+          return
+
+        parameter = getWillysDiscountParameter()
+        apiUrl = f'https://www.willys.se/productBannerComponent/{parameter}?size=999'
+
         if store['parameter'] != parameter:
           store['url'] = apiUrl
           store['parameter'] = parameter
+          store['last_updated'] = getTodayAsInt()
         else:
           print("Same as stored url")
           return

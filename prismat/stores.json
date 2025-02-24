@@ -3,6 +3,7 @@
     "store_items": [
         {
             "name": "Willys",
+            "last_updated": 2025055,
             "parameter": "comp_0000M17T",
             "url": "https://www.willys.se/productBannerComponent/comp_0000M17T?size=999"
         }
