@@ -2,24 +2,19 @@ from urllib.request import urlopen
 import re, json
 import time#, sched
 
-# Sets a year+dayOfYear integer at every successful update
-updatedStores = {
-  "Willys": 0
-}
-
 #s = sched.scheduler(time.time, time.sleep)
 
 getTodayAsInt = lambda : int(time.strftime("%Y%j", time.gmtime()))
-isMonday = lambda : int(time.strftime("%u")) == 1
+#isMonday = lambda : int(time.strftime("%u")) == 1
 alreadyUpdated = lambda lastUpdated : getTodayAsInt() == lastUpdated
 
-# Run a method only once during a Monday
-def onlyOnMondays(callback):
-
-  if isMonday():
-    callback()
-  else:
-    print("Not Monday. Quitting...")
+# Run a method only once during a Monday - not needed because github schedules takes care of this
+#def onlyOnMondays(callback):
+#
+#  if isMonday():
+#    callback()
+#  else:
+#    print("Not Monday. Quitting...")
 
   #runSchedulerService()
 
@@ -59,8 +54,6 @@ def storeWillysDiscountAPIUrl():
 
     print("👍 Updated Willys api url")
 
-    updatedStores['Willys'] = getTodayAsInt()
-
 # Parsing the Willy's homepage for the parameter containing discounts
 def getWillysDiscountParameter():
   discountKeyword = '\"Veckans varor\"'[::-1] # reversing
@@ -68,8 +61,6 @@ def getWillysDiscountParameter():
   regexpDiscount = f'{discountKeyword}.+?{parameterKeyword}' # greedy
   regexpParameter = 'comp_\w+'
   url = 'https://www.willys.se'
-
-  #return 'comp_0000M17T'
 
   with urlopen(url) as response:
     html = response.read().decode('utf-8')
@@ -89,6 +80,7 @@ def getWillysDiscountParameter():
     else:
       print("getWillysDiscountParameter: Couldn't match DISCOUNT")
 
+# not needed, because github schedules takes care of this
 #def runSchedulerService():
 #  every_hour = 3600
 #  s.enter(every_hour, 2, onlyOnMondays, argument=("Willys", storeWillysDiscountAPIUrl))
@@ -96,4 +88,4 @@ def getWillysDiscountParameter():
   
 #runSchedulerService()
 
-onlyOnMondays(storeWillysDiscountAPIUrl)
+storeWillysDiscountAPIUrl()

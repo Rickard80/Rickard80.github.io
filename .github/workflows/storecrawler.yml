@@ -6,7 +6,7 @@ name: Python Store Crawler
 on:
   workflow_dispatch:
   schedule: 
-    - cron: '0 */3 * * *'
+    - cron: '0 */3 * * 1'
 
 jobs:
   build:
@@ -21,20 +21,20 @@ jobs:
         persist-credentials: false # otherwise, the token used is the GITHUB_TOKEN, instead of your personal token
         fetch-depth: 0             # otherwise, you will fail to push refs to dest repo
     - name: Set up Python 3.11.6
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
-        python-version: "3.11.6"
+        python-version: "3.x"
+        cache: 'pip'
+        cache-dependency-path: '**/requirements.txt'
+
     - name: Install dependencies
       run: |
-        echo 'Installing python'
-        python -m pip install --upgrade pip
-        pip install flake8 pytest
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
     - name: Start Store Crawler
       run: |
-        echo 'Store Crawler :: started'
         python3 prismat/storecrawler.py
-        echo 'Store Crawler :: done'
+
     - name: Commit & Push changes
       uses: actions-js/push@master
       with:
