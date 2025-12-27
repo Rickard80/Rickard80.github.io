@@ -2,21 +2,8 @@ from urllib.request import urlopen
 import re, json
 import time#, sched
 
-#s = sched.scheduler(time.time, time.sleep)
-
 getTodayAsInt = lambda : int(time.strftime("%Y%j", time.gmtime()))
-#isMonday = lambda : int(time.strftime("%u")) == 1
 alreadyUpdated = lambda lastUpdated : getTodayAsInt() == lastUpdated
-
-# Run a method only once during a Monday - not needed because github schedules takes care of this
-#def onlyOnMondays(callback):
-#
-#  if isMonday():
-#    callback()
-#  else:
-#    print("Not Monday. Quitting...")
-
-  #runSchedulerService()
 
 # Opens, writes and closes a json file
 def storeWillysDiscountAPIUrl():
@@ -35,6 +22,10 @@ def storeWillysDiscountAPIUrl():
         parameter = getWillysDiscountParameter()
         apiUrl = f'https://www.willys.se/productBannerComponent/{parameter}?size=999'
 
+        print("Parameter", parameter)
+
+        if parameter == None:
+          return
         if store['parameter'] == parameter:
           print(f"Same as stored url: {parameter}")
           return
@@ -56,16 +47,19 @@ def storeWillysDiscountAPIUrl():
 
 # Parsing the Willy's homepage for the parameter containing discounts
 def getWillysDiscountParameter():
-  discountKeyword = '\"Veckans varor\"'[::-1] # reversing
-  parameterKeyword = '\"uid\"'[::-1]  # reversing
+
+  discountKeyword = 'Veckans varor'[::-1] # reversing
+  parameterKeyword = '"uid'[::-1]  # reversing
   regexpDiscount = f'{discountKeyword}.+?{parameterKeyword}' # greedy
-  regexpParameter = 'comp_\w+'
-  url = 'https://www.willys.se'
+  regexpParameter = 'comp_\\w+'
+  url = 'https://www.willys.se/axfoodcommercewebservices/v2/willys/cms/pages?pageLabelOrId=homePage'
 
   with urlopen(url) as response:
-    html = response.read().decode('utf-8')
+    json = response.read().decode('utf-8')
   
-    matchDiscount = re.search(regexpDiscount, html[::-1]) # reversed
+    matchDiscount = re.search(regexpDiscount, json[::-1], re.DOTALL) # reversed
+
+    print(regexpDiscount, ':', matchDiscount.group()[::-1])
 
     if matchDiscount:
       matchParameter = re.search(regexpParameter, matchDiscount.group()[::-1]) # forward
@@ -79,13 +73,5 @@ def getWillysDiscountParameter():
         print("getWillysDiscountParameter: Couldn't match PARAMETER")
     else:
       print("getWillysDiscountParameter: Couldn't match DISCOUNT")
-
-# not needed, because github schedules takes care of this
-#def runSchedulerService():
-#  every_hour = 3600
-#  s.enter(every_hour, 2, onlyOnMondays, argument=("Willys", storeWillysDiscountAPIUrl))
-#  s.run()
-  
-#runSchedulerService()
 
 storeWillysDiscountAPIUrl()
