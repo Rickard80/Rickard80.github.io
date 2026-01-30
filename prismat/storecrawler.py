@@ -59,8 +59,6 @@ def getWillysDiscountParameter():
   
     matchDiscount = re.search(regexpDiscount, json[::-1], re.DOTALL) # reversed
 
-    print(regexpDiscount, ':', matchDiscount.group()[::-1])
-
     if matchDiscount:
       matchParameter = re.search(regexpParameter, matchDiscount.group()[::-1]) # forward
 
