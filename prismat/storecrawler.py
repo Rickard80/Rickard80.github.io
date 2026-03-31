@@ -48,7 +48,7 @@ def storeWillysDiscountAPIUrl():
 # Parsing the Willy's homepage for the parameter containing discounts
 def getWillysDiscountParameter():
 
-  discountKeyword = 'Veckans varor'[::-1] # reversing
+  discountKeyword = 'Veckans erbjudanden'[::-1] # reversing
   parameterKeyword = '"uid'[::-1]  # reversing
   regexpDiscount = f'{discountKeyword}.+?{parameterKeyword}' # greedy
   regexpParameter = 'comp_\\w+'
