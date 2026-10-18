@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<title>Guidelines in Typography to Get You Started</title>
+<meta name="description" content="This is the page for you who want to learn the very basics in layout and typography.">
+
+<style>
+* {
+  text-align: center;
+}
+
+header, section, footer, aside, nav, main, article, figure  { display: block; }
+
+body { background-color: #CCC; }
+
+.image  {
+  margin-bottom: 100px;
+}
+
+nav {
+  position: fixed;
+  top: 0px;
+  right: 0px;
+  width: 70px;
+  background-color: #CCC;
+  padding: 4.5pt;
+  font-size: 9pt;
+  line-height: 13pt;
+}
+
+.navHeader {
+  font-size: 10pt;
+}
+
+.contentLink {
+  display: block;
+  text-align: left;
+}
+
+.sectionLink {
+  display: inline;
+  font-size: 8pt;
+}
+
+a.contentLink:hover, .sectionLink:hover {
+  background-color: #FFFFCC;
+}
+
+#showHideMenu {
+  cursor: pointer;
+  font-size: 7pt;
+}
+
+#tableOfContent {
+  display: none;
+  margin-top: 3px;
+}
+
+footer {
+  z-index: 5;
+  position: fixed;
+  bottom: 0px;
+  width: 100%;  
+  background-color: #CCC;
+  padding-top: 5px;
+  padding-bottom: 3px;
+}
+
+#divToHideShowShareButtons {
+  z-index: 10;
+  position: fixed;
+  bottom: 0px;
+  right: 0px;
+  cursor: pointer;
+  padding-bottom: 3px;
+  width: 50px;
+  background-color: #CCC;
+  padding-top: 5px;
+  padding-bottom: 3px;
+  font-size: 7pt;
+}
+</style>
+
+<script>
+var isOnMenu = false;
+
+window.onclick = myFunction;
+
+function myFunction() {
+  if (isOnMenu) {
+    document.getElementById("tableOfContent").style.display = "block";
+    document.getElementById("showHideMenu").style.display = "none";
+  }
+  else {
+    document.getElementById("tableOfContent").style.display = "none";
+    document.getElementById("showHideMenu").style.display = "block";
+  }
+}
+
+function showHideShareButtons() {
+  var textInDiv = document.getElementById("divToHideShowShareButtons").innerHTML;
+
+  if (textInDiv == "(hide)") {
+    document.getElementById("footer").style.display = "none";
+    document.getElementById("divToHideShowShareButtons").innerHTML = "(show)";
+  }
+  else {
+    document.getElementById("footer").style.display = "block";
+    document.getElementById("divToHideShowShareButtons").innerHTML = "(hide)";
+  }
+}
+</script>
+
+</head>
+
+<nav onmouseover="isOnMenu = true" onmouseout="isOnMenu = false">
+<div class="navHeader">CONTENT</div>
+<div id="showHideMenu" style="display: block;">(show)</div>
+
+<div id="tableOfContent" style="display: none;">
+<a class="contentLink" href="#baseline">Baseline</a>
+<a class="contentLink" href="#goldenCut">Book format</a>
+<a class="contentLink" href="#distances">Border</a>
+<a class="contentLink" href="#tracking">Capital</a>
+<span class="contentLink">Distances</span>
+<a class="sectionLink" href="#basics">#1</a>, <a class="sectionLink" href="#distances">#2</a>, <a class="sectionLink" href="#goldenCut">#3</a>
+
+<span class="contentLink">Leading</span>
+<a class="sectionLink" href="#basics">#1</a>, <a class="sectionLink" href="#distances">#2</a>, <a class="sectionLink" href="#baseline">#3</a>
+
+<a class="contentLink" href="#goldenCut">Golden cut</a>
+<a class="contentLink" href="#grids">Grids</a>
+<a class="contentLink" href="#firstPages">First pages</a>
+<span class="contentLink">Headline</span>
+<a class="sectionLink" href="#basics">#1</a>, <a class="sectionLink" href="#tracking">#2</a>
+
+<span class="contentLink">Images</span>
+<a class="sectionLink" href="#spreads">#1</a>, <a class="sectionLink" href="#grids">#2</a>
+
+<a class="contentLink" href="#textAlignment">Justified text</a>
+<a class="contentLink" href="#textAlignment">Left-aligned</a>
+<span class="contentLink">Legibility</span>
+<a class="sectionLink" href="#basics">#1</a>, <a class="sectionLink" href="#tracking">#2</a>, <a class="sectionLink" href="#textAlignment">#3</a>
+
+<a class="contentLink" href="#distances">List</a>
+<a class="contentLink" href="#spreads">Margins</a>
+<a class="contentLink" href="#tracking">Orphans</a>
+<a class="contentLink" href="#distances">Paragraphs</a>
+<a class="contentLink" href="#spreads">Spreads</a>
+<a class="contentLink" href="#basics">Text</a>
+<span class="contentLink">Text areas</span>
+<a class="sectionLink" href="#goldenCut">#1</a>, <a class="sectionLink" href="#grids">#2</a>
+
+<a class="contentLink" href="#basics">Title</a>
+<a class="contentLink" href="#tracking">Tracking</a>
+<a class="contentLink" href="#tracking">Widow</a>
+</div>
+</nav>
+
+
+<section class="image">
+  <a name="basics"><img alt="The most basic things that you should learn" src="images/GuidelinesForBasicTypography.png"></a>
+</section>
+
+<section class="image">
+  <a name="distances"><img alt="Using text size or leading as guideline" src="images/GuidelinesForDistances.png"></a>
+</section>
+
+<section class="image">
+  <a name="baseline"><img alt="The baseline will make everything pop into place" src="images/GuidelinesExplainingBaseline.png"></a>
+</section>
+
+<section class="image">
+  <a name="tracking"><img alt="Tracknig is used a lot but seldom noticed." src="images/GuidelinesForTracking.png"></a>
+</section>
+
+<section class="image">
+  <a name="textAlignment"><img alt="Left aligned or justified?" src="images/GuidelinesForTextAlignment.png"></a>
+</section>
+
+<section class="image">
+  <a name="goldenCut"><img alt="The golden cut as a guideline for distances" src="images/GuidelinesTheGoldenCut.png"></a>
+
+  <p>Be sure to check out the video <a href="https://web.archive.org/web/20250403205444/https://www.youtube.com/watch?v=4oyyXC5IzEE" target="_new">The Golden Ratio &amp; Fibonacci Numbers: Fact vs Fiction</a>.</p>
+</section>
+
+<section class="image">
+  <a name="spreads"><img alt="Always design with spreads in mind" src="images/GuidelinesForSpreads.png"></a>
+</section>
+
+<section class="image">
+  <a name="grids"><img alt="The usage of a grid layout" src="images/GuidelinesForGrids.png"></a>
+</section>
+
+<section class="image">
+  <a name="firstPages"><img alt="Typical setup for the first pages" src="images/GuidelinesForFirstPages.png"></a>
+  <p>Form and situation can replace all these guidelines.</p>
+  <p>Always follow your judgement over the guidelines.</p>
+</section>
+
+</html">
